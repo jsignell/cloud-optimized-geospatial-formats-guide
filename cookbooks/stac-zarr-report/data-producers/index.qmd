@@ -1,0 +1,185 @@
+---
+title: "Data Producers"
+subtitle: "Approaches to structuring your data cubes in Zarr and STAC"
+---
+
+This section is targeted at people who are trying to disseminate data cubes. It addresses questions like:
+ - Should you use STAC?
+ - Should you use Zarr?
+ - Where should Zarr stores go in your STAC catalog?
+ - How much metadata should you pull up out of the Zarr dataset?
+ - How to pull metadata out of Zarr?
+
+## Is your data spatial-temporal?
+
+Since this is explicitly a geospatial guide, your data is probably spatial-temporal, but just in case it is not - there is a really interesting discussion going on about a general catalog that would cover a larger set of things (read more: [FROST](https://github.com/TomNicholas/FROST)). 
+
+If you are looking for something that exists now:
+
+- [Google dataset search](https://datasetsearch.research.google.com/) which takes advantage of https://schema.org/ (see also [this guide](https://github.com/ESIPFed/science-on-schema.org/tree/main) describing how to use schema.org for science)
+- [Registry of Open Data on AWS](https://registry.opendata.aws/) which lets you catalog publicly-accessible datasets stored in AWS.
+- [zenodo](https://zenodo.org/) which adds a little dataset-level metadata building off the concept of DOIs.
+
+
+## Is your data well-gridded?
+
+Before we really get into it, it is helpful to consider the data that you are trying to disseminate. When we say data cubes we tend to mean well-aligned high-dimensional data. If your data is not well-aligned - for instance [Level 1 or Level 2](https://www.earthdata.nasa.gov/learn/earth-observation-data-basics/data-processing-levels) satellite imagery, then you might not want to use Zarr at all.
+
+In that case you are likely well-served by using single-band COGs stored as STAC assets on STAC items where each item represents one scene. This setup is well-understood and well-supported by existing technology. Additionally the ability to virtually point to remote chunks on disk (using a reference file spec like kerchunk) enables Zarr-like access regardless of the actual file format. If you _do_ want to use Zarr then you should use the **Many smaller Zarr stores** approach outlined below.
+
+If your data _is_ well-gridded, for instance [Level 3 or Level 4](https://www.earthdata.nasa.gov/learn/earth-observation-data-basics/data-processing-levels) data, then it is well suited to Zarr and you need to make some choices about priorities. 
+
+## What are your highest priorities?
+
+It's usually not possible to optimize for all benefits at the same time. That's why we recommend picking out a few of your highest priorities. Examples include:
+    
+    1. Streamline variable-level discovery for web-based users.
+
+    2. Integrate with existing tools and workflows.
+    
+    3. Enable the simplest possible access patterns for users from `<insert-programming-language>`
+
+    4. Enable web-based visualization of large-scale multi-dimensional datasets.
+
+    5. Minimize the number of GET requests for accessing large-scale multi-dimensional datasets.
+
+    6. Minimize data transfer for accessing subsets of large-scale multi-dimensional datasets.
+
+    7. Minimize the amount of infrastructure required to maintain the catalog.
+
+    8. Minimize the cost/time of generating the catalog.
+
+    9. Limit who can read from the dataset without limiting who can inspect the metadata.
+
+Reading through those examples you can imagine how prioritizing one over the other would impact how much effort you dedicate to abstracting metadata into the STAC catalog. Your choices will also impact the number of GET requests needed for common access patterns and the amount of data transferred.
+
+## Options
+
+So given your priorities how should you structure the division between what metadata belongs in STAC and what belongs in Zarr?
+
+### One big Zarr store - minimal STAC metadata
+ 
+1. Create a Zarr store for each dataset (i.e., set of data collected using the same platform, algorithms, model, etc)
+2. Define a STAC collection for each Zarr dataset.
+3. In each collection include a collection-level asset containing the href link to the Zarr store.
+
+**Pros**
+- There is no metadata duplication so the STAC side is easy to maintain.
+- Simple access interface for Python users - no client-side concatenation.
+- Potentially many GETs to construct the data-cube if there is no consolidated metadata file.
+
+**Cons**
+- Data variables are not exposed at the STAC level, so users cannot explore data in place.
+
+### One big Zarr store - some STAC metadata
+
+Same as above but with the additional step:
+
+4. Write variable metadata about the groups up into the STAC collection as collection-level item-assets and summaries.
+
+**Pros**
+- Data variables are exposed at the STAC level, so users can explore data in place.
+- Simple access interface for Python users - no client-side concatenation.
+- Potentially many GETs to construct the data-cube if there is no consolidated metadata file.
+
+**Cons**
+- Metadata is duplicated, but it is variable-level so unlikely to change often.
+
+### Many smaller Zarr stores - minimal STAC metadata
+
+This mimics the common STAC + COG approach but instead of a COG for each band at each scene there is a Zarr for the whole scene.
+
+1. Create a Zarr store for each dataset (i.e., set of data collected using the same platform, algorithms, model, etc) at a particular time and place
+2. Define a STAC collection for each dataset.
+3. Define a STAC item for each unique spatial temporal extent within that dataset.
+4. In each STAC item include one asset with an href link to the Zarr containing that data.
+
+**Pros**
+- Spatial temporal extents are exposed at the STAC level, so users can filter and subset data without accessing the data files themselves.
+- When only accessing necessary items, fewer GETs to construct the data-cube.
+
+**Cons**
+- Metadata is duplicated, but it is unlikely to be a problem since in this setup Zarr stores mostly don't get updated.
+- Data variables are not exposed at the STAC level, so users cannot explore data in place.
+- User is responsible for aligning and concatenating data which can be slow and error-prone.
+
+### Many smaller Zarr stores - some STAC medatata
+
+Same as above but with the additional step:
+
+5. Write metadata on the STAC item using the datacube extension.
+
+**Pros**
+- Data variables are exposed at the STAC level, so users can explore data in place.
+- Spatial temporal extents are exposed at the STAC level, so users can filter and subset data without accessing the data files themselves.
+- When only accessing necessary items, fewer GETs to construct the data-cube.
+
+**Cons**
+- Metadata is fully duplicated which can be expensive to maintain and potentially lead to inconsistencies if the underlying data is changed
+- User is responsible for aligning and concatenating data which can be slow and error-prone.
+
+### Virtual dataset in an external file - minimal STAC metadata
+
+This is similar to **One big Zarr store - minimal STAC metadata** with the exception that data does not need to be stored in a Zarr store. It can be stored in a COG or a NetCDF or an HDF5 file. Anything that has a consistent chunking scheme on-disc
+
+1. Create a virtual reference file (kerchunk, icechunk) pointing to chunks of data on-disc.
+2. Define a STAC collection for each virtual dataset.
+3. In each collection include a collection-level asset containing the href link to the virtual reference file.
+
+**Pros**
+- There is no metadata duplication in STAC, so the STAC side is easy to maintain.
+- Simple access interface for Python users - no client-side concatenation.
+- Entire data-cube can be lazily constructed with one GET to the reference file.
+
+**Cons**
+- Data variables are not exposed at the STAC level, so users cannot explore data in place.
+- Virtual reference file needs to be kept in sync with updates in the underlying data which can be expensive to maintain.
+- Non-Python access is less well developed.
+
+### Virtual dataset in an external file - more STAC metadata
+
+Same as above but with the additional step:
+
+4. Write STAC item metadata using the datacube extension.
+
+**Pros**
+- Data variables are exposed at the STAC level, so users can explore data in place.
+- Simple access interface for Python users - no client-side concatenation.
+- Entire data-cube can be lazily constructed with one GET to the reference file.
+
+**Cons**
+- Metadata is duplicated, but it is variable-level so unlikely to change often.
+- Virtual reference file needs to be kept in-sync with updates in the underlying data which can be expensive to maintain.
+- Non-Python access is less well developed.
+
+### Virtual dataset in STAC - most STAC metadata
+
+This is the most experimental approach. It is similar to the one above but instead of a separate reference file the whole chunk manifest is contained within STAC.
+
+1. Create virtual references (kerchunk) pointing to chunks of data on-disc.
+2. Define a STAC collection for each virtual dataset.
+3. Define a STAC item for each spatial temporal chunk within that dataset.
+4. In each STAC item include one asset for each variable with an href link to a chunk of data on-disc and a property containing the kerchunk reference.
+
+**Pros**
+- Simple access interface for Python users - no client-side concatenation.
+- Data variables are exposed at the STAC level, so users can explore data in place.
+- Entire data-cube can be lazily constructed directly from STAC response.
+
+**Cons**
+- This is the most verbose option, so it likely to only work when using a STAC API or stac-geoparquet.
+- Virtual references needs to be kept in-sync with updates in the underlying data which can be expensive to maintain.
+- Non-Python access is less well developed.
+
+
+## How to pull STAC metadata out of Zarr
+
+Once you have decided how to structure your Zarr stores you can use [xstac](https://github.com/stac-utils/xstac) to write the metadata to STAC. To use `xstac` you just need to load you Zarr store into xarray and `xstac` will:
+   - Expose variables to STAC using [datacube extension](https://github.com/stac-extensions/datacube)
+   - Include kwargs that let xarray know how to open the dataset [xarray extension](https://github.com/stac-extensions/xarray)
+   - Get the spatial-temporal extents of the data
+
+Some other things to keep in mind when you are writing STAC metadata:
+ - Take advantage of inheritance to reduce duplication at the item and asset levels.
+ - Take advantage of roles to make it clear which assets should be included in a data cube.
+ - If you are using many small Zarr stores, consider providing a virtual reference file to make the intended stacking explicit
