@@ -9,7 +9,7 @@ STAC (SpatioTemporal Asset Catalogs) is a specification for defining and searchi
 
 ## Comparison Table
 
-The main thing to keep in mind is that Zarr is a file format and STAC is not. Sometimes we conflate "STAC" with "COGs stored in a STAC catalog", but STAC can be used to catalog anything as long as it has spatial temporal dimensions.
+The main thing to keep in mind is that Zarr is a data format and STAC is not. Sometimes we conflate "STAC" with "COGs stored in a STAC catalog", but STAC can be used to catalog anything as long as it has spatial temporal dimensions.
 
 | STAC | Zarr |
 | -- | --- |
@@ -17,8 +17,7 @@ The main thing to keep in mind is that Zarr is a file format and STAC is not. So
 | supports arbitrary metadata for catalogs, collections, items, assets | supports arbitrary metadata for groups, arrays |
 | good at search and discovery | good at filtering within a dataset |
 | searching returns items | filtering returns chunks |
-| stores metadata separately from data | stores metadata alongside data (except when virtualized) |
-| can point to anything | has opinions about how the data are laid out on disk | 
+| storage of STAC metadata is completely decoupled from storage of data | storage of metadata is coupled to data (i.e., in the same directory, except when virtualized) |
 
 ## Typical approach to storing data cubes in STAC
 
@@ -44,7 +43,7 @@ This is great for [Level 1 or Level 2 data](https://www.earthdata.nasa.gov/learn
 This report will discuss the partially overlapping goals of STAC and Zarr and offer suggestions for how to use them together. Answering questions like:
  - What do each of these specifications excel at?
  - How can they be used together to get the maximum benefit out of both?
- - Where do virtualized datasets (kerchunk, VirtualiZarr) fit in?
+ - Where do virtualized datasets (kerchunk references and Icechunk virtual stores produced by VirtualiZarr) fit in?
 
 
 ## Based off of the following discussions:

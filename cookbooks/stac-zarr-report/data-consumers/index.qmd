@@ -16,7 +16,7 @@ Depending on your background you might have a preference for interacting with th
 
 Both of those access patterns should be supported by tooling, but depending on how the catalog is set up some patterns may be simpler and faster than others (at this point in time).
 
-Here is what exists so far:
+Here is what exists so far in terms of typically organization of Zarr stores in STAC and how to use them:
 
 ## One big Zarr store in a standalone STAC collection
 
@@ -28,7 +28,7 @@ In this scenario any STAC metadata exists purely for discovery and cannot be use
 
 Currently this is the only supported option. You construct the lazily-loaded data cube in xarray and filter once you are in there.
 
-To do this you can use the `zarr` backend directly or you can use [the `stac` backend](https://github.com/stac-utils/xpystac) to streamline even more - this is mostly useful if the STAC collection uses the xarray extension.
+To do this you can use the `zarr` backend directly or you can use [the `stac` backend](https://github.com/stac-utils/xpystac) to streamline even more. The `stac` backend is mostly useful if the STAC collection uses the xarray extension.
 
 This is likely to be very fast if there is a consolidated metadata file OR the data is in Zarr-3 and the metadata fetch is highly parallelized. 
 

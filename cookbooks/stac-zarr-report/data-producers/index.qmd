@@ -25,9 +25,9 @@ If you are looking for something that exists now:
 
 Before we really get into it, it is helpful to consider the data that you are trying to disseminate. When we say data cubes we tend to mean well-aligned high-dimensional data. If your data is not well-aligned - for instance [Level 1 or Level 2](https://www.earthdata.nasa.gov/learn/earth-observation-data-basics/data-processing-levels) satellite imagery, then you might not want to use Zarr at all.
 
-In that case you are likely well-served by using single-band COGs stored as STAC assets on STAC items where each item represents one scene. This setup is well-understood and well-supported by existing technology. Additionally the ability to virtually point to remote chunks on disk (using a reference file spec like kerchunk) enables Zarr-like access regardless of the actual file format. If you _do_ want to use Zarr then you should use the **Many smaller Zarr stores** approach outlined below.
+In that case you are likely well-served by using single-band COGs stored as STAC assets on STAC items where each item represents one scene. This setup is well-understood and well-supported by existing technology. Additionally the ability to virtually point to remote chunks on disk (using a reference file spec like kerchunk or data store spec like icechunk) enables Zarr-like access regardless of the actual file format. If you _do_ want to use Zarr then you should use the **Many smaller Zarr stores** approach outlined below.
 
-If your data _is_ well-gridded, for instance [Level 3 or Level 4](https://www.earthdata.nasa.gov/learn/earth-observation-data-basics/data-processing-levels) data, then it is well suited to Zarr and you need to make some choices about priorities. 
+If your data _is_ aligned as a datacube, for instance [Level 3 or Level 4](https://www.earthdata.nasa.gov/learn/earth-observation-data-basics/data-processing-levels) data, then it is well suited to Zarr and you need to make some choices about priorities. 
 
 ## What are your highest priorities?
 
@@ -51,7 +51,7 @@ It's usually not possible to optimize for all benefits at the same time. That's 
 
     9. Limit who can read from the dataset without limiting who can inspect the metadata.
 
-Reading through those examples you can imagine how prioritizing one over the other would impact how much effort you dedicate to abstracting metadata into the STAC catalog. Your choices will also impact the number of GET requests needed for common access patterns and the amount of data transferred.
+For each of these examples, prioritizing one over the other would impact how much effort you dedicate to abstracting metadata into the STAC catalog. Your choices will also impact the number of GET requests needed for common access patterns and the amount of data transferred.
 
 ## Options
 
@@ -120,16 +120,16 @@ Same as above but with the additional step:
 
 ### Virtual dataset in an external file - minimal STAC metadata
 
-This is similar to **One big Zarr store - minimal STAC metadata** with the exception that data does not need to be stored in a Zarr store. It can be stored in a COG or a NetCDF or an HDF5 file. Anything that has a consistent chunking scheme on-disc
+This is similar to **One big Zarr store - minimal STAC metadata** with the exception that data does not need to be stored in a Zarr store. It can be stored in any number of COG or NetCDF or HDF5 files. Anything that has consistent chunking, encoding, and aligned coordinates on-disc.
 
-1. Create a virtual reference file (kerchunk, icechunk) pointing to chunks of data on-disc.
+1. Create a virtual reference file (kerchunk) or store (icechunk) pointing to chunks of data on-disc.
 2. Define a STAC collection for each virtual dataset.
 3. In each collection include a collection-level asset containing the href link to the virtual reference file.
 
 **Pros**
 - There is no metadata duplication in STAC, so the STAC side is easy to maintain.
 - Simple access interface for Python users - no client-side concatenation.
-- Entire data-cube can be lazily constructed with one GET to the reference file.
+- Entire data-cube can be lazily constructed with one GET to the reference file or store.
 
 **Cons**
 - Data variables are not exposed at the STAC level, so users cannot explore data in place.
