@@ -66,10 +66,10 @@ So given your priorities how should you structure the division between what meta
 **Pros**
 - There is no metadata duplication so the STAC side is easy to maintain.
 - Simple access interface for Python users - no client-side concatenation.
-- Potentially many GETs to construct the data-cube if there is no consolidated metadata file.
 
 **Cons**
-- Data variables are not exposed at the STAC level, so users cannot explore data in place.
+- Potentially many GETs to construct the data-cube if there is no consolidated metadata file.
+- Data variables are not exposed at the STAC level, so users cannot discover relevant datasets by searching for variables.
 
 ### One big Zarr store - some STAC metadata
 
@@ -78,11 +78,11 @@ Same as above but with the additional step:
 4. Write variable metadata about the groups up into the STAC collection as collection-level item-assets and summaries.
 
 **Pros**
-- Data variables are exposed at the STAC level, so users can explore data in place.
+- Data variables are exposed at the STAC level, so users can discover relevant datasets by searching for variables.
 - Simple access interface for Python users - no client-side concatenation.
-- Potentially many GETs to construct the data-cube if there is no consolidated metadata file.
 
 **Cons**
+- Potentially many GETs to construct the data-cube if there is no consolidated metadata file.
 - Metadata is duplicated, but it is variable-level so unlikely to change often.
 
 ### Many smaller Zarr stores - minimal STAC metadata
@@ -100,7 +100,7 @@ This mimics the common STAC + COG approach but instead of a COG for each band at
 
 **Cons**
 - Metadata is duplicated, but it is unlikely to be a problem since in this setup Zarr stores mostly don't get updated.
-- Data variables are not exposed at the STAC level, so users cannot explore data in place.
+- Data variables are not exposed at the STAC level, so users cannot discover relevant datasets by searching for variables.
 - User is responsible for aligning and concatenating data which can be slow and error-prone.
 
 ### Many smaller Zarr stores - some STAC medatata
@@ -110,7 +110,7 @@ Same as above but with the additional step:
 5. Write metadata on the STAC item using the datacube extension.
 
 **Pros**
-- Data variables are exposed at the STAC level, so users can explore data in place.
+- Data variables are exposed at the STAC level, so users can discover relevant datasets by searching for variables.
 - Spatial temporal extents are exposed at the STAC level, so users can filter and subset data without accessing the data files themselves.
 - When only accessing necessary items, fewer GETs to construct the data-cube.
 
@@ -132,7 +132,7 @@ This is similar to **One big Zarr store - minimal STAC metadata** with the excep
 - Entire data-cube can be lazily constructed with one GET to the reference file or store.
 
 **Cons**
-- Data variables are not exposed at the STAC level, so users cannot explore data in place.
+- Data variables are not exposed at the STAC level, so users cannot discover relevant datasets by searching for variables.
 - Virtual reference file needs to be kept in sync with updates in the underlying data which can be expensive to maintain.
 - Non-Python access is less well developed.
 
@@ -143,7 +143,7 @@ Same as above but with the additional step:
 4. Write STAC item metadata using the datacube extension.
 
 **Pros**
-- Data variables are exposed at the STAC level, so users can explore data in place.
+- Data variables are exposed at the STAC level, so users can discover relevant datasets by searching for variables.
 - Simple access interface for Python users - no client-side concatenation.
 - Entire data-cube can be lazily constructed with one GET to the reference file.
 
@@ -163,7 +163,7 @@ This is the most experimental approach. It is similar to the one above but inste
 
 **Pros**
 - Simple access interface for Python users - no client-side concatenation.
-- Data variables are exposed at the STAC level, so users can explore data in place.
+- Data variables are exposed at the STAC level, so users can discover relevant datasets by searching for variables.
 - Entire data-cube can be lazily constructed directly from STAC response.
 
 **Cons**
