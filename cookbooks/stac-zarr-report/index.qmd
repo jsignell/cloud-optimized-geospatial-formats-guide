@@ -5,7 +5,7 @@ subtitle: "Approaches to integrating STAC and Zarr"
 
 # Background + Motivation
 
-STAC (SpatioTemporal Asset Catalogs) is a specification for defining and searching any type of data that has spatial and temporal dimensions. STAC has seen significant adoption in the earth observation community. Zarr is a specification for storing groups of cloud-optimized arrays. Zarr has been adopted by the earth modeling community (led by Pangeo). Both STAC and Zarr offer a flexible nested structure with arbitrary metadata at a variety of levels -- for STAC: catalog, collection, item, asset, for Zarr: group, array. This flexibility has contributed to their popularity, but can also make it hard to tell what they are designed to be particularly good at.
+STAC (SpatioTemporal Asset Catalogs) is a specification for defining and searching any type of data that has spatial and temporal dimensions. STAC has seen significant adoption in the earth observation community. Zarr is a specification for storing groups of cloud-optimized arrays. Zarr has been adopted by the earth modeling community (led by Pangeo). Both STAC and Zarr offer a flexible nested structure with arbitrary metadata at a variety of levels -- for STAC: catalog, collection, item, asset, for Zarr: group, array. This flexibility has contributed to their popularity, but their overlapping goals can make it hard to tell where to draw the line between what belongs in Zarr and what belongs in STAC.
 
 ## Comparison Table
 
@@ -15,38 +15,63 @@ The main thing to keep in mind is that Zarr is a data format and STAC is not. So
 | -- | --- |
 | for data with spatial and temporal dimensions | for groups of arrays |
 | supports arbitrary metadata for catalogs, collections, items, assets | supports arbitrary metadata for groups, arrays |
-| good at search and discovery | good at filtering within a dataset |
-| searching returns items | filtering returns chunks |
+| good for discovering datasets of interest | good at filtering within a dataset |
+| searching returns STAC items or collections | filtering returns chunks of arrays |
 | storage of STAC metadata is completely decoupled from storage of data | storage of metadata is coupled to data (i.e., in the same directory, except when virtualized) |
 
 ## Typical approach to storing data cubes in STAC
 
-This is the most common approach for organizing datacubes with STAC:
+This is the most common approach for organizing data cubes with STAC:
 
     1. Create a COG for each band at each time and place (in satellite terminology: each scene)
     2. Define a STAC collection for each dataset (i.e., set of data collected using the same platform, algorithms, model, etc).
     3. Define a STAC item for each unique temporal and regional extent within that dataset.
     4. In each STAC item include assets for each variable or band with href links to the COGs containing that data.
 
-This is great for [Level 1 or Level 2 data](https://www.earthdata.nasa.gov/learn/earth-observation-data-basics/data-processing-levels) which tends to not be aligned and are potentially on different reference systems. When applied to Level 3 or Level 4 data this approach has downsides:
+This is great for [Level 1 or Level 2 data](https://www.earthdata.nasa.gov/learn/earth-observation-data-basics/data-processing-levels) which tends to not be aligned and are potentially on different reference systems. When applied to Level 3 or Level 4 data (which tends to be aligned and on the same reference system) this approach has downsides:
 
-    * Client libraries need to scan the metadata for each file in order to lazily load the data cube, which can result in lots of GET requests.
-    * Users need to use client libraries for concatenation (e.g., stacstack vs odc.stac) which can lead to confusion and bad data.
+    * Client libraries need to scan the metadata for each file in order to lazily load the data cube, which can result in lots of tiny GET requests. Depending on where the data is being used, that can be slow and expensive.
+    * Users need to use client libraries for concatenation (e.g., stackstac vs odc-stac) which can be confusing and have unintended performance implications.
 
 ## New Approaches
 
-- The [Data Producers section](./data-producers) explores approaches for how to store data cubes using Zar + STAC.
-- The [Data Consumers section](./data-consumers) deals with how to reproducibly consume data cubes stored in Zarr + STAC.
+Data producers can use STAC + Zarr to make their data accessible and discoverable. More details are in:
+
+- The [Data Producers section](./data-producers) -- explores approaches for how to store data cubes using Zarr + STAC.
+- The [Data Consumers section](./data-consumers) -- deals with how to reproducibly consume data cubes stored in Zarr + STAC. 
+
+How you set up the Zarr stores depend on what type of data you have.
+
+### One big Zarr store
+
+Good for Level 3 and 4 data - using one big Zarr store gives the data producer full control over the shape of the data cube.
+
+### Many smaller Zarr stores
+
+This mimics the common STAC + COG approach but instead of a COG for each band at each scene there is a Zarr for the whole scene. 
+
+This is the approach that ESA is planning to use when distributing Sentinel-2 data.
+
+### Virtual references
+
+This is similar to **One big Zarr store** with the exception that data does not need to be stored in a Zarr store. It can be stored in any number of COG or NetCDF or HDF5 files. Anything that is accessible via a GET request and has consistent chunking, encoding, and aligned coordinates on-disc.
+
+This is the approach that Planetary Computer takes for [Earth Exchange Global Daily Downscaled Projections (NEX-GDDP-CMIP6)](https://planetarycomputer.microsoft.com/api/stac/v1/collections/nasa-nex-gddp-cmip6)
 
 ## Goals
 
 This report will discuss the partially overlapping goals of STAC and Zarr and offer suggestions for how to use them together. Answering questions like:
  - What do each of these specifications excel at?
  - How can they be used together to get the maximum benefit out of both?
+ - How do we refer to NetCDF or Zarr assets from STAC?
+ - How do we represent the typical deeply nested hierarchy of earth-system model fields in a STAC catalog?
  - Where do virtualized datasets (kerchunk references and Icechunk virtual stores produced by VirtualiZarr) fit in?
 
+## References
 
-## Based off of the following discussions:
+This report does not represent novel work, but instead tries to aggregate ideas from a variety of sources:
+
+ - https://github.com/cloudnativegeo/cloud-optimized-geospatial-formats-guide/pull/139
  - https://discourse.pangeo.io/t/stac-and-earth-systems-datasets/1472
  - https://discourse.pangeo.io/t/pangeo-showcase-high-performance-python-stac-tooling-backed-by-rust-feb-5-2025/4847
  - https://github.com/cloudnativegeo/cloud-optimized-geospatial-formats-guide/issues/134

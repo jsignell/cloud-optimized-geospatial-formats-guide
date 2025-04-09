@@ -20,14 +20,13 @@ If you are looking for something that exists now:
 - [Registry of Open Data on AWS](https://registry.opendata.aws/) which lets you catalog publicly-accessible datasets stored in AWS.
 - [zenodo](https://zenodo.org/) which adds a little dataset-level metadata building off the concept of DOIs.
 
-
 ## Is your data well-gridded?
 
-Before we really get into it, it is helpful to consider the data that you are trying to disseminate. When we say data cubes we tend to mean well-aligned high-dimensional data. If your data is not well-aligned - for instance [Level 1 or Level 2](https://www.earthdata.nasa.gov/learn/earth-observation-data-basics/data-processing-levels) satellite imagery, then you might not want to use Zarr at all.
+Before we really get into it, it is helpful to consider the data that you are trying to disseminate. When we say data cubes we tend to mean well-aligned high-dimensional data. If your data is not well-aligned -- for instance [Level 1 or Level 2](https://www.earthdata.nasa.gov/learn/earth-observation-data-basics/data-processing-levels) satellite imagery, then you might not want to use Zarr at all.
 
 In the case of un-aligned data, you are likely well-served by using single-band COGs stored as STAC assets on STAC items where each item represents one scene. This setup is well-understood and well-supported by existing technology. Additionally the ability to virtually point to remote chunks on disk (using a reference file spec like kerchunk or data store spec like icechunk) enables Zarr-like access regardless of the actual file format. If you _do_ want to use Zarr then you should use the **Many smaller Zarr stores** approach outlined below.
 
-If your data _is_ aligned as a datacube, for instance [Level 3 or Level 4](https://www.earthdata.nasa.gov/learn/earth-observation-data-basics/data-processing-levels) data, then it is well suited to Zarr and you need to make some choices about priorities. 
+If your data _is_ aligned as a data cube, for instance [Level 3 or Level 4](https://www.earthdata.nasa.gov/learn/earth-observation-data-basics/data-processing-levels) data, then it is well suited to Zarr and you need to make some choices about priorities. 
 
 ## What are your highest priorities?
 
@@ -68,7 +67,7 @@ So given your priorities how should you structure the division between what meta
 - Simple access interface for Python users - no client-side concatenation.
 
 **Cons**
-- Potentially many GETs to construct the data-cube if there is no consolidated metadata file.
+- Potentially many GETs to construct the data cube if there is no consolidated metadata file.
 - Data variables are not exposed at the STAC level, so users cannot discover relevant datasets by searching for variables.
 
 ### One big Zarr store - some STAC metadata
@@ -82,7 +81,7 @@ Same as above but with the additional step:
 - Simple access interface for Python users - no client-side concatenation.
 
 **Cons**
-- Potentially many GETs to construct the data-cube if there is no consolidated metadata file.
+- Potentially many GETs to construct the data cube if there is no consolidated metadata file.
 - Metadata is duplicated, but it is variable-level so unlikely to change often.
 
 ### Many smaller Zarr stores - minimal STAC metadata
@@ -96,7 +95,7 @@ This mimics the common STAC + COG approach but instead of a COG for each band at
 
 **Pros**
 - Spatial temporal extents are exposed at the STAC level, so users can filter and subset data without accessing the data files themselves.
-- When only accessing necessary items, fewer GETs to construct the data-cube.
+- When only accessing necessary items, fewer GETs to construct the data cube.
 
 **Cons**
 - Metadata is duplicated, but it is unlikely to be a problem since in this setup Zarr stores mostly don't get updated.
@@ -107,12 +106,12 @@ This mimics the common STAC + COG approach but instead of a COG for each band at
 
 Same as above but with the additional step:
 
-5. Write metadata on the STAC item using the datacube extension.
+5. Write metadata on the STAC item using the data cube extension.
 
 **Pros**
 - Data variables are exposed at the STAC level, so users can discover relevant datasets by searching for variables.
 - Spatial temporal extents are exposed at the STAC level, so users can filter and subset data without accessing the data files themselves.
-- When only accessing necessary items, fewer GETs to construct the data-cube.
+- When only accessing necessary items, fewer GETs to construct the data cube.
 
 **Cons**
 - Metadata is fully duplicated which can be expensive to maintain and potentially lead to inconsistencies if the underlying data is changed
@@ -129,7 +128,7 @@ This is similar to **One big Zarr store - minimal STAC metadata** with the excep
 **Pros**
 - There is no metadata duplication in STAC, so the STAC side is easy to maintain.
 - Simple access interface for Python users - no client-side concatenation.
-- Entire data-cube can be lazily constructed with one GET to the reference file or store.
+- Entire data cube can be lazily constructed with one GET to the reference file or store.
 
 **Cons**
 - Data variables are not exposed at the STAC level, so users cannot discover relevant datasets by searching for variables.
@@ -140,12 +139,12 @@ This is similar to **One big Zarr store - minimal STAC metadata** with the excep
 
 Same as above but with the additional step:
 
-4. Write STAC item metadata using the datacube extension.
+4. Write STAC item metadata using the data cube extension.
 
 **Pros**
 - Data variables are exposed at the STAC level, so users can discover relevant datasets by searching for variables.
 - Simple access interface for Python users - no client-side concatenation.
-- Entire data-cube can be lazily constructed with one GET to the reference file.
+- Entire data cube can be lazily constructed with one GET to the reference file.
 
 **Cons**
 - Metadata is duplicated, but it is variable-level so unlikely to change often.
@@ -164,7 +163,7 @@ This is the most experimental approach. It is similar to the one above but inste
 **Pros**
 - Simple access interface for Python users - no client-side concatenation.
 - Data variables are exposed at the STAC level, so users can discover relevant datasets by searching for variables.
-- Entire data-cube can be lazily constructed directly from STAC response.
+- Entire data cube can be lazily constructed directly from STAC response.
 
 **Cons**
 - This is the most verbose option, so it likely to only work when using a STAC API or stac-geoparquet.
@@ -175,7 +174,7 @@ This is the most experimental approach. It is similar to the one above but inste
 ## How to pull STAC metadata out of Zarr
 
 Once you have decided how to structure your Zarr stores you can use [xstac](https://github.com/stac-utils/xstac) to write the metadata to STAC. To use `xstac` you just need to load you Zarr store into xarray and `xstac` will:
-   - Expose variables to STAC using [datacube extension](https://github.com/stac-extensions/datacube)
+   - Expose variables to STAC using [data cube extension](https://github.com/stac-extensions/data cube)
    - Include kwargs that let xarray know how to open the dataset [xarray extension](https://github.com/stac-extensions/xarray)
    - Get the spatial-temporal extents of the data
 
