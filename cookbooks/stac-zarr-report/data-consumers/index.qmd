@@ -43,7 +43,7 @@ In this scenario the STAC metadata can be used to filter along the time and spac
 
 If you are interacting with a STAC API and the Zarr store is cataloged in STAC following `xstac` conventions then all the metadata you need for filtering and subsetting is available at the STAC level so you should be able to search either in the web-browser directly or using pystac-client.
 
-If you are interacting with a static STAC catalog (in json or geoparquet) you might be able to use stac-rs and stac-geopandas to search the collection and find the items of interest. _This is a newer approach and might have rough edges_.
+If you are interacting with a static STAC catalog (in json or geoparquet) you might be able to use rustac and stac-geopandas to search the collection and find the items of interest. _This is a newer approach and might have rough edges_.
 
 In both the API and static STAC case the result of the search will be an iterable of items. Each of these items will have at least one asset pointing to the Zarr store (sometimes there will be multiple assets that point to the same store using different protocols). Take the assets that meet your needs and you can use `xr.open_mfdataset` with the `zarr` or `stac` backend to construct the data cube.
 
@@ -62,7 +62,7 @@ The xarray `stac` backend has experimental support for reading virtual reference
 This is a newer area of development. It applies to cases where you are interacting with many smaller Zarr stores and concatenating them. The core concept is that instead of repeatedly querying the STAC catalog you could store the results for easy access.
 
 There are several layers at which you can store results:
-  - Store the result of a STAC search in [stac-geoparquet][2]  (using [stac-rs][3])
+  - Store the result of a STAC search in [stac-geoparquet][2]  (using [rustac][3])
   - Store the result of a data cube constructed by concatenating Zarr stores: 
     - as a new Zarr store - this option can include filtering and subsetting
     - as a virtual reference file ([icechunk][6] or [kerchunk][5])
@@ -75,7 +75,7 @@ There are several layers at which you can store results:
 
 - [xpystac][1]
 - [stac-geoparquet][2]
-- [stac-rs][3]
+- [rustac][3]
 - [kerchunk][5]
 - [icechunk][6]
 - [Earthmover blog: Accelerating Xarray with Zarr-Python 3][4]
@@ -83,7 +83,7 @@ There are several layers at which you can store results:
 
 [1]: https://github.com/stac-utils/xpystac
 [2]: https://github.com/stac-utils/stac-geoparquet
-[3]: https://github.com/stac-utils/stac-rs
+[3]: https://github.com/stac-utils/rustac-py
 [4]: https://earthmover.io/blog/xarray-open-zarr-improvements
 [5]: https://github.com/fsspec/kerchunk
 [6]: https://icechunk.io/en/latest/
