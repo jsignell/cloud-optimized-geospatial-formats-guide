@@ -90,9 +90,9 @@ This report does not represent novel work, but instead tries to aggregate ideas 
 - [VirtualiZarr][8]
 
 [1]: https://www.earthdata.nasa.gov/learn/earth-observation-data-basics/data-processing-levels
-[2]: 
-[3]: 
-[4]:
+[2]: https://github.com/gjoseph92/stackstac
+[3]: https://github.com/opendatacube/odc-stac
+[4]: https://zarr.eopf.copernicus.eu/eopf-sentinel-zarr-samples/
 [5]: https://planetarycomputer.microsoft.com/api/stac/v1/collections/nasa-nex-gddp-cmip6
 [6]: https://github.com/fsspec/kerchunk
 [7]: https://icechunk.io/en/latest/

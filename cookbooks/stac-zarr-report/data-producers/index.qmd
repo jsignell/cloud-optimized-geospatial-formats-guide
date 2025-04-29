@@ -254,7 +254,7 @@ Some other things to keep in mind when you are writing STAC metadata:
 [5]: https://zenodo.org/
 [6]: https://intake.readthedocs.io/en/latest/
 [7]: https://www.earthdata.nasa.gov/learn/earth-observation-data-basics/data-processing-levels
-[8]: TODO: consolidated metadata link
+[8]: https://zarr.readthedocs.io/en/main/user-guide/consolidated_metadata.html
 [9]: https://github.com/stac-extensions/datacube
 [10]: https://github.com/fsspec/kerchunk
 [11]: https://icechunk.io/en/latest/
