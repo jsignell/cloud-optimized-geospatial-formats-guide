@@ -1,5 +1,5 @@
 ---
-title: "STAC <> Zarr Report"
+title: "Overview"
 subtitle: "Approaches to integrating STAC and Zarr"
 author: Julia Signell, Max Jones
 ---
@@ -24,15 +24,15 @@ The main thing to keep in mind is that Zarr is a data format and STAC is a catal
 
 This is the most common approach for organizing data with STAC:
 
-    1. Create a COG for each variable (for satellites: band) at each time and place (in satellite terminology: each scene)
-    2. Define a STAC collection for each dataset (i.e., set of data collected using the same platform, algorithms, model, etc).
-    3. Define a STAC item for each unique temporal and regional extent within that dataset.
-    4. In each STAC item include assets for each variable or band with href links to the COGs containing that data.
+1. Create a COG for each variable (for satellites: band) at each time and place (in satellite terminology: each scene)
+2. Define a STAC collection for each dataset (i.e., set of data collected using the same platform, algorithms, model, etc).
+3. Define a STAC item for each unique temporal and regional extent within that dataset.
+4. In each STAC item include assets for each variable or band with href links to the COGs containing that data.
 
 This is great for [Level 1 or Level 2 data][1] which tends to not be aligned and are potentially on different reference systems. When applied to Level 3 or Level 4 data (which tends to be aligned and on the same reference system) this approach has downsides:
 
-    * Client libraries need to scan the metadata for each file in order to lazily load the data cube, which can result in lots of tiny GET requests. Depending on where the data is being used, that can be slow and expensive.
-    * Data consumers need to use client libraries for concatenation (e.g., [stackstac][2] vs [odc-stac][3]) which can be confusing and have unintended performance implications.
+* Client libraries need to scan the metadata for each file in order to lazily load the data cube, which can result in lots of tiny GET requests. Depending on where the data is being used, that can be slow and expensive.
+* Data consumers need to use client libraries for concatenation (e.g., [stackstac][2] vs [odc-stac][3]) which can be confusing and have unintended performance implications.
 
 ## New Approaches
 
@@ -62,6 +62,7 @@ This is the approach that Planetary Computer takes for [Earth Exchange Global Da
 ## Goals
 
 This report will discuss the partially overlapping goals of STAC and Zarr and offer suggestions for how to use them together. Answering questions like:
+
  - What do each of these specifications excel at?
  - How can they be used together to get the maximum benefit out of both?
  - How do we refer to NetCDF or Zarr assets from STAC?

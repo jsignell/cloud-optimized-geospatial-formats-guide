@@ -4,6 +4,7 @@ subtitle: "Accessing data cubes in Zarr + STAC"
 ---
 
 This section is targeted at people who are trying to access data cubes in Python. It addresses questions like:
+
  - How do you find the data you need?
  - How do you filter down to a subset of the data?
  - When should you write to a virtualized file?
