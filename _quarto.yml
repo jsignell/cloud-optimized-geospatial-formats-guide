@@ -73,8 +73,8 @@ website:
       - href: cookbooks/index.qmd
         text: Cookbooks
         contents:
-        - title: Zarr Visualization Report
-          path: https://nasa-impact.github.io/zarr-visualization-report/
+        - text: Zarr Visualization Report ↗
+          href: https://nasa-impact.github.io/zarr-visualization-report/
         - section: Zarr + STAC Report
           contents:
             - cookbooks/stac-zarr-report/index.qmd
