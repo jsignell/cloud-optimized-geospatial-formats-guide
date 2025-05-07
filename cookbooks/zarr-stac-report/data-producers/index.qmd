@@ -1,5 +1,5 @@
 ---
-title: "Data Producers"
+title: "Zarr + STAC for Data Producers"
 subtitle: "Approaches to structuring your data cubes using Zarr + STAC"
 ---
 

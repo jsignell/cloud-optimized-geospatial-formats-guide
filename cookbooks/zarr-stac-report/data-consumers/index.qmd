@@ -1,5 +1,5 @@
 ---
-title: "Data Consumers"
+title: "Zarr + STAC for Data Consumers"
 subtitle: "Accessing data cubes in Zarr + STAC"
 ---
 

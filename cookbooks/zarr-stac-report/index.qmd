@@ -1,5 +1,5 @@
 ---
-title: "Overview"
+title: "Zarr + STAC"
 subtitle: "Approaches to integrating STAC and Zarr"
 author: Julia Signell, Max Jones
 ---
@@ -12,13 +12,13 @@ STAC (SpatioTemporal Asset Catalogs) is a specification for defining and searchi
 
 The main thing to keep in mind is that Zarr is a data format and STAC is a catalog. Sometimes we conflate "STAC" with "COGs stored in a STAC catalog", but STAC can be used to catalog anything as long as it has spatial and temporal dimensions.
 
-| STAC | Zarr |
+| STAC | Zarr (+xarray for the last 2 rows) |
 | -- | --- |
-| for data with spatial and temporal dimensions | for groups of arrays |
+| for data with spatial and temporal dimensions | for groups of arrays with any type of dimensions |
 | supports arbitrary metadata for catalogs, collections, items, assets | supports arbitrary metadata for groups, arrays |
-| good for discovering datasets of interest | good at filtering within a dataset |
-| searching returns STAC items or collections | filtering returns chunks of arrays |
 | storage of STAC metadata is completely decoupled from storage of data | storage of metadata is coupled to data (i.e., in the same directory, except when virtualized) |
+| good for discovering datasets of interest | good at filtering within a dataset |
+| searching returns STAC items or collections | filtering returns subsets of arrays (potentially composed of parts of multiple chunks) |
 
 ## Typical approach to storing data in STAC
 
@@ -36,7 +36,7 @@ This is great for [Level 1 or Level 2 data][1] which tends to not be aligned and
 
 ## New Approaches
 
-Data producers can use STAC + Zarr to make their data accessible and discoverable. More details are in:
+Data producers can use Zarr + STAC to make their data accessible and discoverable. More details are in:
 
 - The [Data Producers section](./data-producers) -- explores approaches for how to store data cubes using Zarr + STAC.
 - The [Data Consumers section](./data-consumers) -- deals with how to reproducibly consume data cubes stored in Zarr + STAC. 
