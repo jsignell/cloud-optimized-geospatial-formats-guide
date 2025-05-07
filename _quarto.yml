@@ -72,6 +72,15 @@ website:
         text: Glossary
       - href: cookbooks/index.qmd
         text: Cookbooks
+        contents:
+        - text: Zarr Visualization Report ↗
+          href: https://nasa-impact.github.io/zarr-visualization-report/
+        - section: Zarr + STAC Report
+          contents:
+            - cookbooks/zarr-stac-report/index.qmd
+            - cookbooks/zarr-stac-report/data-producers/index.qmd
+            - cookbooks/zarr-stac-report/data-consumers/index.qmd
+
       - href: contributing.qmd
         text: Get Involved
 
