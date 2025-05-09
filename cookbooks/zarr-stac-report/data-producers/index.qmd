@@ -13,14 +13,16 @@ This section is targeted at people who are trying to disseminate data cubes. It 
 
 ## Is your data spatial-temporal?
 
-Since this is explicitly a geospatial guide, your data is probably spatial-temporal, but just in case it is not - there is a really interesting discussion going on about a general catalog that would cover a larger set of things (read more: [FROST][1]). 
+Since this is explicitly a geospatial guide, your data is probably spatial-temporal. In that case you should use STAC! STAC is a flexible specification for describing your datasets that allows people to search for and discover datasets of interest.
 
-If you are looking for something that exists now:
+In case your data is not geospatial, these are some general purpose catalogs for scientific data:
 
 - [Google dataset search][2] which takes advantage of https://schema.org/ (see also [this guide][3] describing how to use schema.org for science)
 - [Registry of Open Data on AWS][4] which lets you catalog publicly-accessible datasets stored in AWS.
 - [zenodo][5] which adds a little dataset-level metadata building off the concept of DOIs.
 - [intake][6] which is a Python-specific catalog supporting arbitrary metadata.
+
+There is a really interesting discussion going on about a general catalog that would cover a larger set of things (read more: [FROST][1]). 
 
 ## Is your data well-gridded?
 
