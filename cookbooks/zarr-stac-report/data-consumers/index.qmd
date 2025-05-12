@@ -9,7 +9,7 @@ This section is targeted at people who are trying to access data cubes. It addre
  - How do you filter down to a subset of the data?
  - When should you write to a virtualized file?
 
-This section assumes a world in which you as a data consumer are interacting with Zarr stores cataloged by STAC. It is mostly about Python (and specifically xarray) but the concepts apply to other languages and libraries.
+This section assumes a world in which you as a data consumer are interacting with Zarr stores cataloged by STAC. It is mostly about Python (and specifically Xarray) but the concepts apply to other languages and libraries.
 
 ## How to read the minimum amount of data
 
